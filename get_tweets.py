@@ -1,10 +1,12 @@
+import logging
+from pathlib import Path
+
 import requests
-from credentials import BEARER_TOKEN
-from topics import topics
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
-from pathlib import Path
-import logging
+
+from credentials import BEARER_TOKEN
+from topics import topics
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(funcName)s - %(message)s ",

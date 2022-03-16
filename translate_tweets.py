@@ -1,11 +1,13 @@
-from transformers import pipeline
-import torch
+import logging
 from pathlib import Path
-from typing import Tuple, Dict, Optional
-from get_tweets import TWEETS_LOCATION
+from typing import Dict, Optional, Tuple
+
+import torch
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
-import logging
+from transformers import pipeline
+
+from get_tweets import TWEETS_LOCATION
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(funcName)s - %(message)s ",
@@ -28,7 +30,7 @@ model_checkpoints = {
 translators: Dict[str, pipeline] = {}
 
 
-def translate_file(lang: str, file_: Path, progress_bar: Optional[tqdm] = None) -> None:
+def translate_file(lang: str, file_: Path) -> None:
     translator = get_translator(lang)
     result_file = TRANSLATIONS_LOCATION / file_.name
     with file_.open() as fh, result_file.open("w+") as rfh:
@@ -38,9 +40,6 @@ def translate_file(lang: str, file_: Path, progress_bar: Optional[tqdm] = None) 
                 translation = translation_raw[0]["translation_text"]
             except:
                 continue
-            if progress_bar:
-                progress_bar.update()
-
             logger.info(
                 f"Translated sentence:\n\t{line.strip()}\n\t{translation.strip()}\n\n"
             )
@@ -52,7 +51,9 @@ def get_translator(lang: str) -> pipeline:
     if translator := translators.get(key):
         return translator
     else:
-        translators[key] = pipeline("translation", model=model_checkpoints[key], device = device)
+        translators[key] = pipeline(
+            "translation", model=model_checkpoints[key], device=device
+        )
         return translators[key]
 
 
@@ -64,16 +65,19 @@ def get_lines_count(location: Path) -> int:
     return result
 
 
-def iter_tweet_collections(location: Path) -> Tuple[str, Path]:
+def iter_tweet_collections(location: Path, progress_bar: tqdm) -> Tuple[str, Path]:
     for lang in ("ru", "pl", "uk"):
-        for tweet_collection in TWEETS_LOCATION.glob(f"{lang}_*.tsv"):
+        for tweet_collection in location.glob(f"{lang}_*.tsv"):
             yield lang, tweet_collection
+            progress_bar.update()
 
 
 if __name__ == "__main__":
     with logging_redirect_tqdm(), tqdm(
         total=get_lines_count(TWEETS_LOCATION)
     ) as progress_bar:
-        for lang, tweet_collection in iter_tweet_collections(TWEETS_LOCATION):
+        for lang, tweet_collection in iter_tweet_collections(
+            TWEETS_LOCATION, progress_bar
+        ):
             logger.info(f"Processing {tweet_collection.name}")
-            translate_file(lang, tweet_collection, progress_bar)
+            translate_file(lang, tweet_collection)
