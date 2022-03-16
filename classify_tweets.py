@@ -8,6 +8,7 @@ from tqdm.contrib.logging import logging_redirect_tqdm
 from transformers import pipeline
 
 from translate_tweets import TRANSLATIONS_LOCATION
+from utils.text import remove_emoticons
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(funcName)s - %(message)s ",
@@ -53,7 +54,7 @@ def classify_file(file_: Path) -> None:
     result_file = RESULTS_LOCATION / file_.name
     with file_.open() as fh, result_file.open("w+") as rfh:
         while line := fh.readline():
-            line = line.strip()
+            line = remove_emoticons(line.strip())
             classification_raw = classifier(line, war_emotions)
 
             logger.info(f"Classified sentence:\n\t{line}\n\t{classification_raw}\n\n")

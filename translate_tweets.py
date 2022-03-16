@@ -8,6 +8,7 @@ from tqdm.contrib.logging import logging_redirect_tqdm
 from transformers import pipeline
 
 from get_tweets import TWEETS_LOCATION
+from utils.text import remove_emoticons
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(funcName)s - %(message)s ",
@@ -35,6 +36,7 @@ def translate_file(lang: str, file_: Path) -> None:
     result_file = TRANSLATIONS_LOCATION / file_.name
     with file_.open() as fh, result_file.open("w+") as rfh:
         while line := fh.readline():
+            line = remove_emoticons(line.strip())
             translation_raw = translator(line)
             try:
                 translation = translation_raw[0]["translation_text"]
