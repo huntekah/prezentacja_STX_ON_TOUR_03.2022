@@ -37,7 +37,7 @@ def translate_file(lang: str, file_: Path, progress_bar: Optional[tqdm] = None) 
                 progress_bar.update()
 
             logger.info(
-                f"Translated sentence:\n\t{line.strip()}\n\t{translation.strip()}"
+                f"Translated sentence:\n\t{line.strip()}\n\t{translation.strip()}\n\n"
             )
             rfh.write(translation.strip() + "\n")
 
