@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Dict, Optional, Tuple
+from typing import Dict, Tuple
 
 import torch
 from tqdm import tqdm
@@ -8,7 +8,7 @@ from tqdm.contrib.logging import logging_redirect_tqdm
 from transformers import pipeline
 
 from get_tweets import TWEETS_LOCATION
-from utils.text import remove_emoticons
+from utils.text import line_preprocessing
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(funcName)s - %(message)s ",
@@ -36,15 +36,13 @@ def translate_file(lang: str, file_: Path) -> None:
     result_file = TRANSLATIONS_LOCATION / file_.name
     with file_.open() as fh, result_file.open("w+") as rfh:
         while line := fh.readline():
-            line = remove_emoticons(line.strip())
+            line = line_preprocessing(line)
             translation_raw = translator(line)
             try:
                 translation = translation_raw[0]["translation_text"]
             except:
                 continue
-            logger.info(
-                f"Translated sentence:\n\t{line.strip()}\n\t{translation.strip()}\n\n"
-            )
+            logger.info(f"Translated sentence:\n\t{line}\n\t{translation.strip()}\n\n")
             rfh.write(translation.strip() + "\n")
 
 

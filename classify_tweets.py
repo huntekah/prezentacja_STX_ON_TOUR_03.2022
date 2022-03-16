@@ -8,7 +8,7 @@ from tqdm.contrib.logging import logging_redirect_tqdm
 from transformers import pipeline
 
 from translate_tweets import TRANSLATIONS_LOCATION
-from utils.text import remove_emoticons
+from utils.text import line_preprocessing
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(funcName)s - %(message)s ",
@@ -26,7 +26,6 @@ classifier = pipeline(
     "zero-shot-classification", model="facebook/bart-large-mnli", device=device
 )
 
-sequence_to_classify = "one day I will see the world"
 # economic_emotions = ["fear", "greed", "good decision", "worry", "anxious", "trust"]
 war_emotions = [
     "anger",
@@ -54,7 +53,8 @@ def classify_file(file_: Path) -> None:
     result_file = RESULTS_LOCATION / file_.name
     with file_.open() as fh, result_file.open("w+") as rfh:
         while line := fh.readline():
-            line = remove_emoticons(line.strip())
+            line = line_preprocessing(line)
+            logger.debug(f"Processing: '{line}'")
             classification_raw = classifier(line, war_emotions)
 
             logger.info(f"Classified sentence:\n\t{line}\n\t{classification_raw}\n\n")
