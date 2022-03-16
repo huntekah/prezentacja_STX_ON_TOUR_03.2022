@@ -5,6 +5,7 @@ click==8.0.4
 filelock==3.6.0
 huggingface-hub==0.4.0
 idna==3.3
+isort==5.10.1
 joblib==1.1.0
 mypy-extensions==0.4.3
 numpy==1.22.3

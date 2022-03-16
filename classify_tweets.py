@@ -63,12 +63,18 @@ def classify_file(file_: Path) -> None:
                 logger.info(f"\t{label}\t{score}")
 
             rfh.write(
-                "\t".join([
-                    str(score)
-                    for _, score in sorted(
-                        zip(classification_raw["labels"], classification_raw["scores"])
-                    )
-                ]) + "\n"
+                "\t".join(
+                    [
+                        str(score)
+                        for _, score in sorted(
+                            zip(
+                                classification_raw["labels"],
+                                classification_raw["scores"],
+                            )
+                        )
+                    ]
+                )
+                + "\n"
             )
 
 
@@ -81,8 +87,9 @@ def get_lines_count(location: Path) -> int:
 
 def iter_tweet_collections(location: Path, progress_bar: tqdm) -> Tuple[str, Path]:
     for tweet_collection in location.glob(f"??_*.tsv"):
+        progress = sum(1 for line in tweet_collection.open())
         yield tweet_collection
-        progress_bar.update()
+        progress_bar.update(progress)
 
 
 if __name__ == "__main__":
