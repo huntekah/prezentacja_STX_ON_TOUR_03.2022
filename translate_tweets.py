@@ -1,4 +1,5 @@
 from transformers import pipeline
+import torch
 from pathlib import Path
 from typing import Tuple, Dict, Optional
 from get_tweets import TWEETS_LOCATION
@@ -14,6 +15,10 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 TRANSLATIONS_LOCATION = Path("./translations")
+TRANSLATIONS_LOCATION.mkdir(parents=True, exist_ok=True)
+
+device = 0 if torch.cuda.is_available() else -1
+
 model_checkpoints = {
     "ru_en": "Helsinki-NLP/opus-mt-ru-en",
     "pl_en": "Helsinki-NLP/opus-mt-pl-en",
@@ -26,7 +31,7 @@ translators: Dict[str, pipeline] = {}
 def translate_file(lang: str, file_: Path, progress_bar: Optional[tqdm] = None) -> None:
     translator = get_translator(lang)
     result_file = TRANSLATIONS_LOCATION / file_.name
-    with file_.open() as fh, result_file.open("w") as rfh:
+    with file_.open() as fh, result_file.open("w+") as rfh:
         while line := fh.readline():
             translation_raw = translator(line)
             try:
@@ -47,7 +52,7 @@ def get_translator(lang: str) -> pipeline:
     if translator := translators.get(key):
         return translator
     else:
-        translators[key] = pipeline("translation", model=model_checkpoints[key])
+        translators[key] = pipeline("translation", model=model_checkpoints[key], device = device)
         return translators[key]
 
 
