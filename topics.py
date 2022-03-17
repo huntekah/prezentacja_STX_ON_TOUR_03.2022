@@ -92,3 +92,7 @@ topics = {
         "number of cases",
     ],
 }
+
+
+def id_to_topic(lang: str, id_: int) -> str:
+    return topics[lang][id_]
