@@ -68,8 +68,9 @@ def get_lines_count(location: Path) -> int:
 def iter_tweet_collections(location: Path, progress_bar: tqdm) -> Tuple[str, Path]:
     for lang in ("ru", "pl", "uk"):
         for tweet_collection in location.glob(f"{lang}_*.tsv"):
+            progress = sum(1 for line in tweet_collection.open())
             yield lang, tweet_collection
-            progress_bar.update()
+            progress_bar.update(progress)
 
 
 if __name__ == "__main__":

@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-RESULTS_LOCATION = Path("./results")
+RESULTS_LOCATION = Path("./results_2")
 RESULTS_LOCATION.mkdir(parents=True, exist_ok=True)
 
 device = 0 if torch.cuda.is_available() else -1
@@ -26,8 +26,17 @@ classifier = pipeline(
     "zero-shot-classification", model="facebook/bart-large-mnli", device=device
 )
 
-# economic_emotions = ["fear", "greed", "good decision", "worry", "anxious", "trust"]
-war_emotions = [
+war_emotions = ["support",
+                  "criticicism",
+                  "praise",
+                  "joy",
+                  "euphoria",
+                  "integration",
+                  "devotion",
+                  "sacrifice",
+                  "propaganda",
+                  "resistance"]
+simple_emotions = [
     "anger",
     "brave",
     "fear",
